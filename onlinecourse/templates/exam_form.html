@@ -1,0 +1,33 @@
+<!-- Exam form for this lesson -->
+<div id="exam{{ lesson.id }}" class="collapse mt-3">
+    {% if user.is_authenticated %}
+    <h3>Exam</h3>
+    <form id="questionform" action="{% url 'onlinecourse:submit' course.id %}" method="post">
+        {% csrf_token %}
+        <!-- For each question in the lesson -->
+        {% for question in lesson.question_set.all %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Question {{ forloop.counter }}: {{ question.question_text }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <!-- For each choice in the question -->
+                    {% for choice in question.choice_set.all %}
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="selected_choices" class="form-check-input" value="{{ choice.id }}">
+                            {{ choice.choice_text }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <input class="btn btn-success btn-block mt-3" type="submit" value="Submit">
+    </form>
+    {% else %}
+    <p>Please login to take the exam.</p>
+    {% endif %}
+</div>

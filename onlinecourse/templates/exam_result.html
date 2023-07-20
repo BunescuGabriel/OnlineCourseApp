@@ -1,0 +1,25 @@
+<h3>Exam Result</h3>
+<p>Total Score: {{ total_score }}</p>
+<p>Passed Exam: {% if passed_exam %}Yes{% else %}No{% endif %}</p>
+
+{% for question_result in question_results %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5>Question: {{ question_result.question_text }}</h5>
+        </div>
+        <div class="card-body">
+            <p>Score: {{ question_result.score }} / {{ question_result.total_score }}</p>
+            <p>Selected Choices:</p>
+            <ul>
+                {% for choice in question_result.selected_choices %}
+                    <li>{{ choice.choice_text }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endfor %}
+
+<!-- Add this line to display a link for each question result -->
+{% for question_result in question_results %}
+    <a href="{% url 'onlinecourse:show_exam_result' submission_id=question_result.submission_id %}">View Result</a>
+{% endfor %}
