@@ -75,6 +75,11 @@ class SubmissionAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         # Before saving the submission, update the learner's progress
         obj.update_progress()
+
+        # Set the final grade based on the calculated final_grade attribute of the object
+        obj.final_grade = obj.final_grade
+
+        # Save the object
         super().save_model(request, obj, form, change)
 
     def is_complete(self, obj):
@@ -94,7 +99,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     delete_selected_submissions.short_description = 'Delete selected submissions'
 
-    list_display = ['course_and_lesson', 'user_full_name', 'timestamp', 'is_complete', 'feedback', 'user_has_started_test']
+    list_display = ['course_and_lesson', 'user_full_name', 'timestamp', 'is_complete', 'final_grade', 'feedback', 'user_has_started_test']
     list_filter = ['timestamp', 'enrollment__course']
 
     # Add the action method to the actions attribute

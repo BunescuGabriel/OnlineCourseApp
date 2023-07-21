@@ -1,80 +1,72 @@
+<!-- course_detail_bootstrap.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <!-- Load static files like CSS and JavaScript libraries -->
     {% load static %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta charset="UTF-8">
 </head>
 <body>
-
- <nav class="navbar navbar-light bg-light">
-    <div class="container-fluid">
-        <div class="navbar-header">
-              <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
-        </div>
-        <ul class="nav navbar-nav navbar-right">
-            {% if user.is_authenticated %}
-            <li>
-                <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
-                <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">Logout</a>
-            </li>
-            {% else %}
-            <li>
-                <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Username" name="username" >
-                        <input type="password" class="form-control" placeholder="Username" name="psw" >
-                        <button class="btn btn-primary" type="submit">Login</button>
-                        <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
-                    </div>
-                </form>
-            </li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
-
-<div class="container-fluid">
-    {% if grade > 80 %}
-    <div class="alert alert-success">
-       <!--HINT Display passed info -->
-    </div>
-        {% else %}
-        <div class="alert alert-danger">
-            <!--HINT Display failed info -->
-        </div>
-        <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
-        {% endif %}
-        <div class="card-columns-vertical mt-1">
-        <h5 class="">Exam results</h5>
-            <!--HINT Display exam results-->
-            <h3>Exam Result</h3>
-<p>Total Score: {{ total_score }}</p>
-<p>Passed Exam: {% if passed_exam %}Yes{% else %}No{% endif %}</p>
-
-{% for question_result in question_results %}
-    <div class="card mt-3">
-        <div class="card-header">
-            <h5>Question: {{ question_result.question_text }}</h5>
-        </div>
-        <div class="card-body">
-            <p>Score: {{ question_result.score }} / {{ question_result.total_score }}</p>
-            <p>Selected Choices:</p>
-            <ul>
-                {% for choice in question_result.selected_choices %}
-                    <li>{{ choice.choice_text }}</li>
-                {% endfor %}
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username" >
+                            <input type="password" class="form-control" placeholder="Username" name="psw" >
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
             </ul>
         </div>
-    </div>
-{% endfor %}
+    </nav>
 
-<!-- Add this line to display a link for each question result -->
-{% for question_result in question_results %}
-    <a href="{% url 'onlinecourse:show_exam_result' submission_id=question_result.submission_id %}">View Result</a>
-{% endfor %}
+    <!-- Page content -->
+    <div class="container-fluid">
+        <!-- Display the course name -->
+        <h2>{{ course.name }}</h2>
+        <div class="card-columns-vertical">
+            {% for lesson in course.lesson_set.all %}
+                <!-- Display information for each lesson -->
+                <div class="card mt-1">
+                    <div class="card-header"><h5>Lesson {{ lesson.order|add:1 }}: {{ lesson.title }}</h5></div>
+                    <div class="card-body">{{ lesson.content }}</div>
+                    <!-- Add the Start Exam button -->
+                    <div class="text-left mt-2">
+                        <a class="btn btn-primary" data-toggle="collapse" href="#exam{{ lesson.id }}" role="button" aria-expanded="false" aria-controls="exam{{ lesson.id }}">
+                            Start Exam
+                        </a>
+                    </div>
 
+                    <!-- Import the exam form from the separate file -->
+                <div class="collapse mt-3" id="exam{{ lesson.id }}">
+                    {% include 'onlinecourse/exam_submission.html' %}
+                </div>
+
+                <!-- Import the exam result page from the separate file -->
+                <div class="mt-3">
+                    {% include 'onlinecourse/exam_result.html' %}
+                </div>
+                    
+
+                </div>
+            {% endfor %}
         </div>
     </div>
 </body>

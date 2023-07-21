@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Results</title>
+    <style>
+        .text-success {
+            color: green;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .text-black {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+    <h1>Exam Submission</h1>
+    <p>Course: {{ course.name }}</p>
+    <form method="post" action="{% url 'onlinecourse:submit_exam' course.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="lesson_id" value="{{ course.lesson.id }}">
+        <h2>{{ course.lesson.title }}</h2>
+
+        {% for result in question_results_dict %}
+            <li>
+                <strong>{{ result.question.question_text }}</strong><br>
+                {% for choice, is_correct, selected in result.choices %}
+                    {% if selected %}
+                        {% if is_correct %}
+                            <span class="text-success">{{ choice.choice_text }}</span>
+                        {% else %}
+                            <span class="text-danger">{{ choice.choice_text }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-black">{{ choice.choice_text }}</span>
+                    {% endif %}
+                    <br>
+                {% endfor %}
+                Your score for this question: {{ result.score }} / {{ result.question.grade }}
+            </li>
+        {% endfor %}
+
+        <p>Total Score: {{ total_score }}</p>
+        {% if final_grade > 0 %}
+            <p>Final Grade: {{ final_grade|floatformat:2 }}/10</p>
+        {% endif %}
+        <a href="javascript:history.back()" class="sageata-inapoi">&#8592; Înapoi</a>
+    </form>
+    {% endblock %}
+</body>
+</html>

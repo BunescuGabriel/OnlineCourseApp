@@ -1,6 +1,8 @@
 import sys
 from django.utils import timezone
 from django.utils.timezone import now
+from django.db.models import Sum
+
 try:
     from django.db import models
 except Exception:
@@ -63,6 +65,7 @@ class Course(models.Model):
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Enrollment')
     total_enrollment = models.IntegerField(default=0)
     is_enrolled = False
+    passing_score = models.FloatField(default=0)
 
     def __str__(self):
         return "Name: " + self.name + "," + \
@@ -75,7 +78,8 @@ class Lesson(models.Model):
     order = models.IntegerField(default=0)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     content = models.TextField()
-
+    passing_score = models.FloatField(default=0)
+    
 
 # Enrollment model
 # <HINT> Once a user enrolled a class, an enrollment entry should be created between the user and course
@@ -108,6 +112,7 @@ class Question(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     question_text = models.TextField()
     grade = models.FloatField()
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='questions')  # Adăugați acest câmp
 
     def calculate_score(self, selected_choice_ids):
         correct_choices = self.choice_set.filter(is_correct=True, id__in=selected_choice_ids).count()
@@ -115,6 +120,7 @@ class Question(models.Model):
         if total_choices == 0:
             return 0
         return (correct_choices / total_choices) * self.grade
+
 
 
 # <HINT> Create a Choice Model with:
@@ -138,6 +144,26 @@ class Submission(models.Model):
     choices = models.ManyToManyField(Choice)  # Many-To-Many with Choice
     timestamp = models.DateTimeField(default=timezone.now)
     feedback = models.TextField(blank=True, null=True)
+    final_grade = models.FloatField(default=0)
+
+    def calculate_final_grade(self):
+        lessons = self.enrollment.course.lesson_set.all()
+        total_max_grade = Question.objects.filter(lesson__in=lessons).aggregate(Sum('grade'))['grade__sum']
+        if total_max_grade and total_max_grade > 0:
+            total_score = self.calculate_total_score()
+            final_grade = (total_score / total_max_grade) * 10.0
+            # Normalize the final grade to be between 0 and 10
+            final_grade = min(10, final_grade)
+            return final_grade
+        return 0.0
+
+    def calculate_total_score(self):
+        total_score = 0
+        for question in self.enrollment.course.questions.all():
+            selected_choice_ids = self.choices.filter(question=question).values_list('id', flat=True)
+            score = question.calculate_score(selected_choice_ids)
+            total_score += score
+        return total_score
 
     def is_complete(self):
         lessons = self.enrollment.course.lesson_set.all()

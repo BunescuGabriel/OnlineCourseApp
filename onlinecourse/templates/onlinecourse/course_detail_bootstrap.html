@@ -7,6 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <meta charset="UTF-8">
 </head>
 
@@ -60,22 +61,15 @@
                 </div>
 
                 <!-- Import the exam form from the separate file -->
-<div id="exam{{ lesson.id }}" class="collapse mt-3">
-    {% include 'exam_form.html' %}
-</div>
+                <div class="collapse mt-3" id="exam{{ lesson.id }}">
+                    {% include 'onlinecourse/exam_submission.html' %}
+                </div>
 
-                <!-- After successful submission, display the exam submission success message -->
-{% if submission_success %}
-<div class="alert alert-success mt-3">
-    Your exam has been submitted successfully. You can view the results <a href="{% url 'onlinecourse:show_exam_result' course_id=course.id submission_id=submission_success.id %}">here</a>.
-</div>
-{% endif %}
+                {% comment %} <!-- Import the exam result page from the separate file -->
+                <div class="mt-3">
+                    {% include 'onlinecourse/exam_result.html' %}
+                </div> {% endcomment %}
 
-
-<!-- Show exam results if the user has submitted the exam -->
-{% if submission_success %}
-    {% include 'exam_result.html' %}
-{% endif %}
             </div>
             {% endfor %}
         </div>

@@ -1,0 +1,22 @@
+
+{% block content %}
+  <h1>Exam Submission</h1>
+  <p>Course: {{ course.name }}</p>
+  <form method="post" action="{% url 'onlinecourse:submit_exam' course.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="lesson_id" value="{{ course.lesson.id }}">
+    <h2>{{ lesson.title }}</h2>
+    {% for question in lesson.question_set.all %}
+    <p>{{ question.question_text }}</p>
+    {% for choice in question.choice_set.all %}
+    <input type="checkbox" name="choice_{{ question.id }}_{{ choice.id }}" id="choice_{{ question.id }}_{{ choice.id }}">
+    <label for="choice_{{ question.id }}_{{ choice.id }}" class="{% if choice.is_correct %}correct{% endif %}">
+      {{ choice.choice_text }}
+    </label><br>
+    {% endfor %}
+    {% endfor %}
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}
+
+
