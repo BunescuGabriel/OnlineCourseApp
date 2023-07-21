@@ -5,16 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exam Results</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+
         .text-success {
             color: green;
+            font-weight: bold;
         }
 
         .text-danger {
             color: red;
+            font-weight: bold;
         }
 
         .text-black {
             color: black;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        .sageata-inapoi {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .sageata-inapoi:hover {
+            text-decoration: underline;
+        }
+
+        .message-container {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
@@ -27,24 +86,29 @@
         <input type="hidden" name="lesson_id" value="{{ course.lesson.id }}">
         <h2>{{ course.lesson.title }}</h2>
 
-        {% for result in question_results_dict %}
-            <li>
-                <strong>{{ result.question.question_text }}</strong><br>
-                {% for choice, is_correct, selected in result.choices %}
-                    {% if selected %}
-                        {% if is_correct %}
-                            <span class="text-success">{{ choice.choice_text }}</span>
-                        {% else %}
-                            <span class="text-danger">{{ choice.choice_text }}</span>
-                        {% endif %}
-                    {% else %}
-                        <span class="text-black">{{ choice.choice_text }}</span>
-                    {% endif %}
-                    <br>
-                {% endfor %}
-                Your score for this question: {{ result.score }} / {{ result.question.grade }}
-            </li>
-        {% endfor %}
+        <ul>
+            {% for result in question_results_dict %}
+                <li>
+                    <strong>{{ result.question.question_text }}</strong><br>
+                    <ul>
+                        {% for choice, is_correct, selected in result.choices %}
+                            <li>
+                                {% if selected %}
+                                    {% if is_correct %}
+                                        <span class="text-success">{{ choice.choice_text }}</span>
+                                    {% else %}
+                                        <span class="text-danger">{{ choice.choice_text }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-black">{{ choice.choice_text }}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <p>Your score for this question: {{ result.score }} / {{ result.question.grade }}</p>
+                </li>
+            {% endfor %}
+        </ul>
 
         <p>Total Score: {{ total_score }}</p>
         {% if final_grade > 0 %}
@@ -52,6 +116,19 @@
         {% endif %}
         <a href="javascript:history.back()" class="sageata-inapoi">&#8592; Înapoi</a>
     </form>
+
+    <div class="message-container {% if is_passed %}message-success{% else %}message-error{% endif %}">
+        {% if is_passed %}
+            {% if final_grade > 5 %}
+                <p>Congratulations! You have passed the exam with a score of {{ final_grade|floatformat:2 }}/10.</p>
+            {% else %}
+                <p>Your score is not satisfactory. Please try again.</p>
+            {% endif %}
+        {% else %}
+            <p>Your score is not satisfactory. Please try again.</p>
+        {% endif %}
+    </div>
+
     {% endblock %}
 </body>
 </html>

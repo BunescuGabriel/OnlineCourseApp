@@ -20,17 +20,17 @@ class ChoiceInline(admin.TabularInline):
 
 
 # Register CourseAdmin
-# Register CourseAdmin
 class CourseAdmin(admin.ModelAdmin):
     inlines = [LessonInline]
-    list_display = ('name', 'pub_date', 'instructor_name')
+    list_display = ('name', 'pub_date', 'instructor_names')  # Update the method name here
     list_filter = ['pub_date']
     search_fields = ['name', 'description']
 
-    def instructor_name(self, obj):
-        return obj.instructor.user.get_full_name()
+    def instructor_names(self, obj):  # Update the method name here
+        instructor_names = ', '.join([instructor.user.get_full_name() for instructor in obj.instructors.all()])
+        return instructor_names
 
-    instructor_name.short_description = 'Instructor'
+    instructor_names.short_description = 'Instructors' 
 
 
 
