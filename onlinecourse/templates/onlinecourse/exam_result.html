@@ -117,15 +117,16 @@
         <a href="javascript:history.back()" class="sageata-inapoi">&#8592; Înapoi</a>
     </form>
 
-    <div class="message-container {% if is_passed %}message-success{% else %}message-error{% endif %}">
-        {% if is_passed %}
-            {% if final_grade > 5 %}
+
+    <div class="message-container {% if final_grade is not None %}{% if final_grade > 5 %}message-success{% else %}message-error{% endif %}{% endif %}">
+        {% if final_grade is not None %}
+            {% if final_grade >= 5 %}
                 <p>Congratulations! You have passed the exam with a score of {{ final_grade|floatformat:2 }}/10.</p>
             {% else %}
                 <p>Your score is not satisfactory. Please try again.</p>
             {% endif %}
         {% else %}
-            <p>Your score is not satisfactory. Please try again.</p>
+            <p>Your score is not available at the moment. Please wait for the results to be processed.</p>
         {% endif %}
     </div>
 
