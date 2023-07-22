@@ -2,7 +2,7 @@ from ipaddress import summarize_address_range
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 # <HINT> Import any new Models here
-from .models import Course, Enrollment, Choice, Lesson, Question, Submission
+from .models import Course, Enrollment, Choice, Question, Submission
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -10,7 +10,6 @@ from django.views import generic
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 import logging
-# Get an instance of a logger
 logger = logging.getLogger(__name__)
 # Create your views here.
 
@@ -90,19 +89,6 @@ class CourseDetailView(generic.DetailView):
     model = Course
     template_name = 'onlinecourse/course_detail_bootstrap.html'
 
-# def enroll(request, course_id):
-#     course = get_object_or_404(Course, pk=course_id)
-#     user = request.user
-
-#     is_enrolled = check_if_enrolled(user, course)
-#     if not is_enrolled and user.is_authenticated:
-#         # Create an enrollment
-#         Enrollment.objects.create(user=user, course=course, mode='honor')
-#         course.total_enrollment += 1
-#         course.save()
-
-#     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
-
 def enroll(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     user = request.user
@@ -116,28 +102,6 @@ def enroll(request, course_id):
         course.save()
 
     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
-
-
-
-# @login_required
-# def enroll(request, course_id, lesson_id):
-#     course = get_object_or_404(Course, pk=course_id)
-#     user = request.user
-
-#     is_enrolled = check_if_enrolled(user, course)
-#     if not is_enrolled and user.is_authenticated:
-#         # Create an enrollment
-#         enrollment = Enrollment.objects.create(user=user, course=course, mode='honor')
-
-#         # Get the lesson associated with the lesson_id
-#         lesson = get_object_or_404(Lesson, pk=lesson_id)
-#         enrollment.lesson = lesson  # Associate the lesson with the enrollment
-#         enrollment.save()
-
-#         course.total_enrollment += 1
-#         course.save()
-
-#     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
 
 
 # <HINT> Create a submit view to create an exam submission record for a course enrollment,
@@ -176,7 +140,7 @@ def submit_exam(request, course_id):
         return redirect('onlinecourse:show_exam_result', submission_id=submission.id)
 
     # If the request method is not POST, render the exam submission page
-    return render(request, 'onlinecourse/exam_submission.html', {'course': course})
+    return render(request, 'onlinecourse/course_detail_bootstrap.html', {'course': course})
 
 # <HINT> A example method to collect the selected choices from the exam form from the request object
 
@@ -236,7 +200,7 @@ def show_exam_result(request, submission_id):
         question_results_dict.append(question_result)
 
     # Render the exam result page with question results and overall result
-    return render(request, 'onlinecourse/exam_result.html', {
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', {
         'course': course,
         'submission': submission,
         'user': user,
